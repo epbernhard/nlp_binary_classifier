@@ -1,0 +1,6 @@
+.DS_Store
+./data
+./glove
+./tmp
+*.ipynb
+./__pycache__
