@@ -1,3 +1,6 @@
+"""This module contains the class for the word embedding"""
+
+import sys
 import scipy
 import numpy as np
 import pandas as pd
@@ -6,17 +9,20 @@ from tqdm import tqdm
 class Embeddings():
     """
     A class to perform word embedding.
-    str_arr: pre-embedding sentences (e.g. the comments).
-    encoding: matrix containing the vectors corresponding to every word in the vocab.
+    str_arr: sentences in full words.
+    word_dict: a list containing the word in the dictionary.
+    max_length: maximum length for the sentence.
 
-    return embed_arr an embedded matrix.
+    return embedded_array, labels.
     """
 
     def __init__(self, str_arr, word_dict, max_length):
         self.str_arr = str_arr
         self.word_dict = word_dict
-        self.max_length = max_length    
+        self.max_length = max_length
+
     def one_hot(self, average_over = False, save = False, labels = None):
+        """This method contains the one-hot encoding"""
 
         if save and (labels is None):
             raise AssertionError("Can't save encoding without providing labels. Otherwise \
@@ -54,8 +60,8 @@ class Embeddings():
                     av_embedded_sentence = scipy.sparse.csr_matrix(np.zeros(len(self.word_dict)))
                     for embedded_word_i in embedded_sentence:
                         av_embedded_sentence += embedded_word_i
-                    
-                    # Create a vector of size that of the vocabulary vocab 
+
+                    # Create a vector of size that of the vocabulary vocab
                     # which is averaged over the comment.
                     # Therefore, each comment is encoded by a single vector.
                     # The only non-zero values are the averaged values accross the sentence.
@@ -65,14 +71,16 @@ class Embeddings():
                 else:
 
                     print('Not coded yet [embedding averaged over the com]')
-                    pdb.set_trace()
+                    sys.exit()
                     # Need padding since not all the sentences are the same length.
                     # encod_com = embed_arr
 
-                pbar.update()                    
+                pbar.update()
 
-        assert len(embedded_array) == len(self.str_arr),  "The length of the word embedding vectors"+\
-                                                          " is not the same length as the comment."
+        assert len(embedded_array) == len(self.str_arr),  "The length of the word "+\
+                                                          "embedding "+\
+                                                          "vectors is not the same length "+\
+                                                          "as the comment."
 
         if save:
             assert len(embedded_array) == len(labels),  "The length of the word embedding vectors"+\
@@ -83,6 +91,4 @@ class Embeddings():
 
             return embedded_array, labels
 
-        else:
-
-            return embedded_array, labels
+        return embedded_array, labels

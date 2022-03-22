@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import pickle
 import numpy as np
-import pdb
 
 history = pickle.load(open('./histories/history_one_300_64_one_hot', "rb"))
 
@@ -36,8 +35,3 @@ plt.xlabel('Epoch', fontsize = 20)
 plt.ylabel('recall', fontsize = 20)
 
 fig.savefig('./histories/history_V1.0.0.pdf')
-
-
-
-
-pdb.set_trace()

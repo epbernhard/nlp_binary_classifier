@@ -1,27 +1,33 @@
-import pandas as pd
+"""This module trains the binary classifier on the efftreat data."""
+
 import os
+import pickle
+import pandas as pd
 import numpy as np
 import tensorflow as tf
-import pickle
 import func
-from collections import Counter
 from word_embedding import Embeddings
 
 # Whether to use a saved word embedding or not.
-use_saved_embedding = False
+USE_SAVED_EMBEDDING = False
 
-if use_saved_embedding is not True:
+if USE_SAVED_EMBEDDING is not True:
 
-    if os.path.exists('./data/efftreat_clean_label.csv') != True:
+    if os.path.exists('./data/efftreat_clean_label.csv') is not True:
 
-        # Calls the function perform_cleaning which cleans the data (see the function for more details).
-        func.perform_cleaning('./data/comments_long.csv', './data/efftreat_long.csv', 'comment', 'efftreat', './data/efftreat_clean_label.csv')
-        
+        # Calls the function perform_cleaning which
+        # cleans the data (see the function for more details).
+        func.match_and_clean('./data/comments_long.csv',
+                             './data/efftreat_long.csv',
+                             'comment',
+                             'efftreat',
+                             './data/efftreat_clean_label.csv')
+
     # Load the dataframe with cleaned comments and corresponding labels
     df_clean = pd.read_csv('./data/efftreat_clean_label.csv')
     print('We have %i cleaned comments.'%(len(df_clean)))
 
-    # Here, we have a cleaned sample of 114 909 comments regarding effective treatments 
+    # Here, we have a cleaned sample of 114 909 comments regarding effective treatments
     # and their labels (either 1 or 0 for usefull or useless)
     # The aim is to use NLP to decide whether a comment is useful.
 
@@ -33,27 +39,31 @@ if use_saved_embedding is not True:
     df_clean_train = df_clean.filter(['comments_clean','labels'], axis=1)[Ntrain:]
     print('Of which %i are used for training and pre-treatment.'%(len(df_clean_train)))
 
-    # Use pre-treatment of the data to extract the lengths 
+    # Use pre-treatment of the data to extract the lengths
     # of the comments as well as the vocabulary to use.
     comments_length, word_in_vocab = func.perform_pretreat(df_clean_train)
 
-    comments_embedded = Embeddings(df_clean['comments_clean'].values, word_in_vocab, comments_length)
+    comments_embedded = Embeddings(df_clean['comments_clean'].values,
+                                   word_in_vocab,
+                                   comments_length)
 
     # try simple word embedding with one-hot encoding with average over the sentence.
-    # So one comment is represented by a sparse vector with some weight != 0 
+    # So one comment is represented by a sparse vector with some weight != 0
     # corresponding to the mean values.
-    embed_matrix_sparse, labels = comments_embedded.one_hot(average_over = True, save = True, labels = df_clean['labels'].values)
+    embed_matrix_sparse, labels = comments_embedded.one_hot(average_over = True,
+                                                            save = True,
+                                                            labels = df_clean['labels'].values)
 
     if labels is None:
         labels = df_clean['labels'].values
 
-elif use_saved_embedding:
+elif USE_SAVED_EMBEDDING:
 
     archive_encod = np.load('./tmp/sparse_matrix_one_hot.npz', 'rb', allow_pickle=True)
-    
+
     embed_matrix_sparse = archive_encod['embed_arr_full']
     labels = archive_encod['labels']
-    
+
     Ntrain = int(0.25 * len(labels))
 
 # First simple model
@@ -71,12 +81,12 @@ model.add(tf.keras.layers.Dense(32, activation='relu', input_shape = (X_train.sh
 model.add(tf.keras.layers.Dense(16, activation='relu'))
 model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
 
-batch_size = 128
-epochs = 300
-l_r = 0.01
-sgd = tf.keras.optimizers.SGD(learning_rate=l_r)
+BATCH_SIZE = 128
+EPOCHS = 300
+L_R = 0.01
+sgd = tf.keras.optimizers.SGD(learning_rate=L_R)
 
-history_one = func.compile_and_fit(model, batch_size, epochs, sgd, X_train, Y_train, X_test, Y_test)
+history_one = func.compile_and_fit(model, BATCH_SIZE, EPOCHS, sgd, X_train, Y_train, X_test, Y_test)
 
 with open('./histories/history_one_300_64_one_hot', 'wb') as f:
     pickle.dump(history_one.history, f)
