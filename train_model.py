@@ -3,7 +3,7 @@ import os
 import numpy as np
 import tensorflow as tf
 import pickle
-from func import compile_and_fit, perform_cleaning, perform_pretreat
+import func
 from collections import Counter
 from word_embedding import Embeddings
 
@@ -14,9 +14,10 @@ if use_saved_embedding is not True:
 
     if os.path.exists('./data/efftreat_clean_label.csv') != True:
 
-        perform_cleaning('./data/comments_long.csv', './data/efftreat_long.csv', 'comment', 'efftreat', './data/efftreat_clean_label.csv')
+        # Calls the function perform_cleaning which cleans the data (see the function for more details).
+        func.perform_cleaning('./data/comments_long.csv', './data/efftreat_long.csv', 'comment', 'efftreat', './data/efftreat_clean_label.csv')
         
-    # Constructed the dataframe with cleaned comments and corresponding labels
+    # Load the dataframe with cleaned comments and corresponding labels
     df_clean = pd.read_csv('./data/efftreat_clean_label.csv')
     print('We have %i cleaned comments.'%(len(df_clean)))
 
@@ -34,7 +35,7 @@ if use_saved_embedding is not True:
 
     # Use pre-treatment of the data to extract the lengths 
     # of the comments as well as the vocabulary to use.
-    comments_length, word_in_vocab = perform_pretreat(df_clean_train)
+    comments_length, word_in_vocab = func.perform_pretreat(df_clean_train)
 
     comments_embedded = Embeddings(df_clean['comments_clean'].values, word_in_vocab, comments_length)
 
@@ -75,7 +76,7 @@ epochs = 300
 l_r = 0.01
 sgd = tf.keras.optimizers.SGD(learning_rate=l_r)
 
-history_one = compile_and_fit(model, batch_size, epochs, sgd, X_train, Y_train, X_test, Y_test)
+history_one = func.compile_and_fit(model, batch_size, epochs, sgd, X_train, Y_train, X_test, Y_test)
 
 with open('./histories/history_one_300_64_one_hot', 'wb') as f:
     pickle.dump(history_one.history, f)
