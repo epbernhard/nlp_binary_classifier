@@ -4,7 +4,7 @@ This is a binary classifier that uses NLP to classify comments reviewing healthc
 
 This is trained on data that I am not allowed to share, but which have been pre-labelled as "useful" or "not useful". The aim is to classify a new unseen comment as "useful" or "not useful".
 
-I will constantly build upon the latest version by optimising the network metrics. There is always plenty of room to improve, by starting with using different models and word embeddings, but also by using a tailored data preparation. In our case we want to maximise precision, which will reduce the recall. This is because it is better to obtain a clean sample of usefull comments (minimising the false positives), at the expense of losing some usefull comments.
+I will constantly build upon the latest version by optimising the network metrics. There is always plenty of room to improve, by starting with using different models and word embeddings, but also by using a tailored data preparation. In our case we want to maximise precision, which will reduce the recall. This is because it is better to obtain a clean sample of useful comments (minimising the false positives), at the expense of losing some useful comments.
 
 ---------------
 This is V2.0.0:
