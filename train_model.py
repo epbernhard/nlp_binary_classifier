@@ -124,3 +124,5 @@ with open('./histories/model_'+version+'.txt', 'w') as f:
       ' %i percent of precision,'%(precision)+\
       ' and %i percent of recall. \n'%(recall))
     f.write('--------------')
+
+# ADD THE LOSS VALUE
