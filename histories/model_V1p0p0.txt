@@ -1,0 +1,21 @@
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ dense (Dense)               (None, 16)                22592     
+                                                                 
+ dense_1 (Dense)             (None, 1)                 17        
+                                                                 
+=================================================================
+Total params: 22,609
+Trainable params: 22,609
+Non-trainable params: 0
+_________________________________________________________________
+
+BATCH_SIZE:64
+EPOCHS:500
+L_R:0.01
+Embedding:one_hot
+-------------- 
+This model performs with 85 percent of accuracy, 86 percent of precision, and 93 percent of recall. 
+--------------
