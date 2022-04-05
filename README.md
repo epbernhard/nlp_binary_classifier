@@ -1,66 +1,24 @@
 **Binary classification using NLP**
 
-This is a binary classifier that uses NLP to classify comments reviewing healthcare practices. The classifier determines whether a comment is useful or not to measure the effectiveness of the treatment administered.
+<p>This presents a binary classifier that uses NLP to classify comments reviewing healthcare practices. I stress that it has been tailored for a given dataset, and is only presented here as part of my portfolio. I will update it regularly to test new models, every time trying to push its performances.</p>
 
-This is trained on data that I am not allowed to share, but which have been pre-labelled as "useful" or "not useful". The aim is to classify a new unseen comment as "useful" or "not useful".
+<p>On this page, you can find all the codes, which should only be useful to me to keep track of the changes, but feel free to have a look if you are nosy. Instead, the latest version of the classifier is described in details in a set of notebooks that you can find in the "notebooks" folder. I divided the task into three sub-tasks, which can be individually improved to increase the performances of the classifier. These are,</p>
 
-I will constantly build upon the latest version by optimising the network metrics. There is always plenty of room to improve, by starting with using different models and word embeddings, but also by using a tailored data preparation. In our case we want to maximise precision, which will reduce the recall. This is because it is better to obtain a clean sample of useful comments (minimising the false positives), at the expense of losing some useful comments.
+**Data Preparation (prep_data.ipynb)**:<br>
+In this notebook you can find a detailed description on how I explore the data (e.g. imbalance), as well as how I define a vocabulary.
 
----------------
-This is V2.0.0:
+**Word Embedding (word_embedding.ipynb)**:<br>
+In this notebook you can find a detailed description on which embedding I use to convert the comments from plain English to vectors ready to be ingested by the NLP algorithm.
 
-**data preparation**:\
-Text normalisation + defining a vocabulary.
+**Model (nlp_model.ipynb)**:<br>
+In this notebook you can find a detailed description of the model I use to fit the data with, and a little summary of its performances.
 
-**word embedding**:\
-Binary bag of words: convert the comments into sparse matrices of zeros and ones. Zero is put in place if the word is not in the vocabulary, and one is placed if the word is in the vocabulary.
+I will work on each of these, and if there is some progress on the classification I will update the notebooks to reflect the changes I have made.
 
-Example:\
-vocabulary = ['red', 'car', 'pigeon']\
-comment = ['jon has a red car']\
-embedding = [0,0,0,1,1]
+**Cautionary Notes**:<br>
+<ol>
+  <li>The data will note be shared, as coming from private communication and sensitive.</li>
+  <li>The classifier is not intended for production, this is only part of my portfolio. However, feel free to use any parts of it if you need.</li>
+  <li>The versioning does not follow the PEP 440, it is only used as a self-guide to keep track of the changes.</li>
+</ol>
 
-
-**Model**:\
-basic 16/1 Dense layers. (see ./histories/model_V2p0p0.txt)
-
-**Performances on the test data for 500 epochs:**
-* Reach over-fitting very quickly (< 100 epochs), but had an early stop.
-* Loss: 0.35
-* Accuracy: 86%
-* Precision: 89%
-* Recall: 91%
-
-**Changes/Comments**:\
-From V1.0.0 only the word embedding has changed. The differences in performances can be seen on the figure "histories/history_V1p0p0_vs_V2p0p0.pdf". Both the precision and accuracy have marginally increased, which is promising. Future work will focus on trying other word embeddings, as well as adding some penalising factors in the NN to avoid the fast over-fitting.
-
----------------
-This is V1.0.0:
-
-**data preparation**:\
-text normalisation + defining a vocabulary.
-
-**word embedding**:\
-Here I used a simple word embedding where each of the words in the vocabulary is one-hot encoded. Therefore, one can encode a full comment by replacing each of the words by the one-hot encoded word. For simplicity (and speed), this first version further average over the comments (i.e. all of the words in a comment are collapsed into a single vector).
-
-Example:\
-vocabulary = ['red', 'car', 'pigeon']\
-comment = ['jon has a red car']\
-matrix = [0,0,0] (jon)\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,0,0] (has)\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,0,0] (a)\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[1,0,0] (red)\
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[0,1,0] (car)\
-embedding = [0.2, 0.2, 0.] (averaged over the sentence)
-
-**Model**:\
-Basic 16/1 Dense layers. (see ./histories/model_V1p0p0.txt)
-
-**Performances on the test data for 500 epochs:**
-* No apparent over-fitting, but stopped learning.
-* Loss: 0.37
-* Accuracy: 84%
-* Precision: 87%
-* Recall: 91%
-
----------------
