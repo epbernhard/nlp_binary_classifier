@@ -15,7 +15,7 @@ version = 'V2p0p0'
 embedding_choice = 'BoW'
 
 # Whether to use a saved word embedding or not.
-USE_SAVED_EMBEDDING = False
+USE_SAVED_EMBEDDING = True
 
 if USE_SAVED_EMBEDDING is not True:
 
