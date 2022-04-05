@@ -32,7 +32,6 @@ plt.plot(epoch_comp, history_comp['val_accuracy'], '--', color = '#60a6db', alph
 plt.xlabel('Epoch', fontsize = 20)
 plt.ylabel('Accuracy', fontsize = 20)
 
-
 plt.subplot(2,2,3)
 plt.plot(epoch, history['precision'], color = 'k', alpha = 0.6)
 plt.plot(epoch, history['val_precision'], '--', color = 'k', alpha = 0.6)

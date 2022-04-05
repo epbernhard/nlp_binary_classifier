@@ -13,6 +13,8 @@ from nltk.corpus import stopwords
 from matplotlib.font_manager import FontProperties
 font0 = FontProperties(family = 'serif', variant = 'small-caps', size = 26)
 
+def fscore(beta, p, r):
+    return ((1+beta*beta)*p*r)/(beta*beta*p + r)
 
 def compile_and_fit(model, batch_size, epochs, optimizer, x_train, y_train, x_test, y_test):
     """This function performs the compilation and fit of the model"""
@@ -144,7 +146,7 @@ def perform_pretreat(data_frame):
     fig.subplots_adjust(hspace = 0.0, wspace=0., left  = 0.16,
                         right = 0.97, bottom = 0.12, top = 0.98)
 
-    axs.bar(['Useless (label = 0)', 'Usefull (label = 1)'],
+    axs.bar(['Useless (label = 0)', 'useful (label = 1)'],
              df_balance['comments_clean'].values/len(data_frame)*100.,
              width = 0.4, hatch = ['X', None],
              edgecolor = 'k', linewidth = 2, color = ['#e8a787','#87b9e8'], alpha = 0.7)
@@ -170,11 +172,11 @@ def perform_pretreat(data_frame):
 
 
     # Let's plot the distribution of words.
-    df_usefull = data_frame.loc[data_frame['labels'] == 1, 'comments_clean'].tolist()
+    df_useful = data_frame.loc[data_frame['labels'] == 1, 'comments_clean'].tolist()
     df_useless = data_frame.loc[data_frame['labels'] == 0, 'comments_clean'].tolist()
 
     n_word = 30 #Numbers of top words to look at
-    top_usefull = pd.DataFrame(Counter(' '.join(df_usefull).split()).most_common(n_word),
+    top_useful = pd.DataFrame(Counter(' '.join(df_useful).split()).most_common(n_word),
                                columns = ['word', 'count'])
     top_useless = pd.DataFrame(Counter(' '.join(df_useless).split()).most_common(n_word),
                                columns = ['word', 'count'])
@@ -183,10 +185,10 @@ def perform_pretreat(data_frame):
     fig.subplots_adjust(hspace = 0.0, wspace=0., left  = 0.16,
                         right = 0.97, bottom = 0.28, top = 0.98)
 
-    ax1.bar(top_usefull['word'].values,
-          top_usefull['count'].values,
+    ax1.bar(top_useful['word'].values,
+          top_useful['count'].values,
           width = 0.5, edgecolor = 'k', linewidth = 1, color = ['#87b9e8'],
-          alpha = 0.7, label = 'Usefull comments')
+          alpha = 0.7, label = 'useful comments')
     ax1.legend()
     ax1.set_ylabel('Counter', fontproperties = font0)
     ax1.tick_params(axis='both', labelcolor='k', labelsize = 18,
@@ -194,28 +196,28 @@ def perform_pretreat(data_frame):
     ax1.tick_params(axis='both', width = 1, size = 10, which = 'minor',
                     direction = 'inout')
     ax1.tick_params(axis = 'x', labelrotation=90)
-    fig.savefig('./plots/word_counter_UsefullClass.pdf')
+    fig.savefig('./plots/word_counter_usefulClass.pdf')
     plt.close(fig)
 
     ###################
-    # Staff, care, thank, hospital... are the top hit in the "usefull" comments.
-    # (see "./plots/word_counter_UsefullClass.pdf")
+    # Staff, care, thank, hospital... are the top hit in the "useful" comments.
+    # (see "./plots/word_counter_usefulClass.pdf")
     # However, it is possible that these are top hit in "useless" comments too.
     # If that's the case, their predictive power as single word (1-gram) is null.
     # Let's check that.
     ###################
 
-    df_word_counter_all = top_usefull.merge(top_useless, left_on = 'word',
-                                            right_on = 'word', suffixes=('_usefull', '_useless'))
+    df_word_counter_all = top_useful.merge(top_useless, left_on = 'word',
+                                            right_on = 'word', suffixes=('_useful', '_useless'))
 
     fig, ((ax1), (ax2)) = plt.subplots(2, 1, figsize = (9, 7), sharex = True)
     fig.subplots_adjust(hspace = 0.0, wspace=0., left  = 0.16,
                         right = 0.97, bottom = 0.28, top = 0.98)
 
     ax1.bar(df_word_counter_all['word'].values,
-          df_word_counter_all['count_usefull'].values,
+          df_word_counter_all['count_useful'].values,
           width = 0.5, edgecolor = 'k', linewidth = 1, color = ['#87b9e8'],
-          alpha = 0.7, label = 'Usefull comments')
+          alpha = 0.7, label = 'useful comments')
     ax1.bar(df_word_counter_all['word'].values,
           df_word_counter_all['count_useless'].values,
           width = 0.5, edgecolor = 'k', linewidth = 1, color = ['#e8a787'],
@@ -228,11 +230,11 @@ def perform_pretreat(data_frame):
     ax1.tick_params(axis='both', width = 1, size = 10,
                     which = 'minor', direction = 'inout')
 
-    frac_word_usefull = df_word_counter_all['count_usefull'].values/\
-                        sum(df_word_counter_all['count_usefull'].values)
+    frac_word_useful = df_word_counter_all['count_useful'].values/\
+                        sum(df_word_counter_all['count_useful'].values)
     frac_word_useless = df_word_counter_all['count_useless'].values/\
                         sum(df_word_counter_all['count_useless'].values)
-    word_power = frac_word_usefull/(frac_word_usefull + frac_word_useless) - 0.5
+    word_power = frac_word_useful/(frac_word_useful + frac_word_useless) - 0.5
 
     o_index = np.where((word_power > -0.1) & (word_power < 0.1))[0]
     ax2.plot(df_word_counter_all['word'].values[o_index], word_power[o_index], 'o',
@@ -265,13 +267,13 @@ def perform_pretreat(data_frame):
     # Perhaps try later to remove them and see if classification improves.
     # Or maybe use n-grams.
     # To get the "word positivity" we calculate the fraction that the word appears
-    # in the usefull comments. We do the same for the useless comments. We then
-    # calculate the fraction of it appearing in the usefull comments divided
+    # in the useful comments. We do the same for the useless comments. We then
+    # calculate the fraction of it appearing in the useful comments divided
     # by the total fraction it appears in the two classes. We also remove 0.5
     # for normalisation. If close to zero, then it appears at similar levels
-    # in usefull and useless comments and potentially have no classification power.
+    # in useful and useless comments and potentially have no classification power.
     # (see bottom panel of "./plots/word_counter_twoClass.pdf")
-    # Example: Staff appears in 20% of the usefull comments, as well as useless
+    # Example: Staff appears in 20% of the useful comments, as well as useless
     # comments. Therefore, 0.2/(0.2+0.2) - 0.5 = 0.
     # For the moment we keep these words and see how classification performs. We
     # might go back to this later and try and remove these.

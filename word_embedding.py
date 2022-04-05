@@ -110,6 +110,9 @@ class Embeddings():
         with tqdm(total=len(self.str_arr)) as pbar:
             for str_arr_i in self.str_arr:
 
+                if len(str_arr_i.split(' ')) > self.max_length:
+                    str_arr_i = ' '.join(str_arr_i.split(' ')[0:self.max_length])
+
                 embedded_sentence = []
                 for word_in_vocab in self.word_dict:
 
@@ -118,6 +121,7 @@ class Embeddings():
                             embedded_sentence.append(1)
                         else:
                             embedded_sentence.append(0)
+
                     else:
                         print('BoW not coded yet if embedding not binary')
                         sys.exit()
