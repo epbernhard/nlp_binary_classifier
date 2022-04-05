@@ -6,17 +6,17 @@ This presents a binary classifier that uses NLP to classify comments reviewing h
 On this page, you can find all the codes, which should only be useful to me to keep track of the changes, but feel free to have a look if you are nosy. Instead, the latest version of the classifier is described in details in a set of notebooks that you can find in the "notebooks" folder. I divided the task into three sub-tasks, which can be individually improved to increase the performances of the classifier. These are,
 
 ```diff
-+ Data Preparation (prep_data.ipynb):
++ Data Preparation: prep_data.ipynb
 ```
 In this notebook you can find a detailed description on how I explore the data (e.g. imbalance), as well as how I define a vocabulary.
 
 ```diff
-+ Word Embedding (word_embedding.ipynb):
++ Word Embedding: word_embedding.ipynb
 ```
 In this notebook you can find a detailed description on which embedding I use to convert the comments from plain English to vectors ready to be ingested by the NLP algorithm.
 
 ```diff
-+ Model (nlp_model.ipynb):
++ Model: nlp_model.ipynb
 ```
 In this notebook you can find a detailed description of the model I use to fit the data, and a little summary of its performances.
 
